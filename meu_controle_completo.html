@@ -14,14 +14,31 @@ input,select,textarea,button{font:inherit}input,select,textarea{border:1px solid
 footer{max-width:1120px;padding:0 15px 30px;margin:auto;color:var(--muted);font-size:11px}
 @media(max-width:800px){.s8,.s7,.s6,.s5,.s4{grid-column:span 12}.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:span 2}.head{align-items:flex-start}.big{font-size:27px}}
 @media(max-width:420px){.stats{grid-template-columns:1fr 1fr}.food{grid-template-columns:minmax(0,1fr) auto}.food .actions{grid-column:1/-1;justify-content:flex-end}.formgrid{grid-template-columns:1fr 1fr}.datebar input{max-width:155px}}
+
+#authGate{max-width:460px;margin:28px auto 50px;padding:0 16px}
+#authGate .authbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow)}
+#authGate h2{font-size:21px;margin:0 0 6px}
+#authGate .field{margin-top:12px}
+#authGate input{width:100%}
+#authMessage{min-height:20px;margin-top:12px;color:var(--muted);font-size:13px}
+#authActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+#appContent.hidden{display:none}
+#accountBar{display:flex;justify-content:flex-end;gap:10px;align-items:center;padding:10px 15px;color:#fff;font-size:12px}
 </style></head>
 <body>
 <header><div class="wrap">
  <div class="head"><div><h1>Meu Controle</h1><p>Seu painel completo de alimentação, hidratação, jejum e evolução.</p></div><span class="pill">DIÁRIO PESSOAL</span></div>
  <div class="datebar"><label for="day">Data:</label><input id="day" type="date"><button class="secondary" id="todayBtn">Hoje</button><button class="secondary" id="prevBtn">‹ Dia anterior</button><button class="secondary" id="nextBtn">Próximo dia ›</button></div>
 </div></header>
-<main>
-<div class="grid">
+<div id="accountBar" class="hidden"><span id="accountEmail"></span><button id="signOutBtn" class="secondary">Sair</button></div>
+<section id="authGate"><div class="authbox">
+<h2>Acesse seu ControlePeso</h2><p class="muted">Entre com seu e-mail e senha para sincronizar seus registros entre celular e computador.</p>
+<form id="authForm">
+<div class="field"><label for="authEmail">E-mail</label><input id="authEmail" type="email" autocomplete="email" required placeholder="seuemail@exemplo.com"></div>
+<div class="field"><label for="authPassword">Senha</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"></div>
+<div id="authActions"><button type="submit" id="loginBtn">Entrar</button><button type="button" id="signupBtn" class="secondary">Criar conta</button></div>
+</form><div id="authMessage" role="status">Se ainda não tem cadastro, use “Criar conta”.</div>
+</div></section><div id="appContent" class="hidden"><main><div class="grid">
  <section class="card s8">
   <div class="sectionhead"><h2>Resumo de calorias</h2><span class="pill" id="calPct">0% da meta</span></div>
   <div class="row"><div><div class="big" id="calTotal">0 kcal</div><div class="small">consumidas no dia</div></div><div style="text-align:right"><div class="big" id="calLeft">1.800</div><div class="small">kcal restantes</div></div></div>
@@ -104,9 +121,71 @@ footer{max-width:1120px;padding:0 15px 30px;margin:auto;color:var(--muted);font-
   <div class="quickBtns"><button class="secondary" id="exportBtn">Exportar backup</button><label class="secondary" style="padding:9px 13px;border-radius:10px;cursor:pointer;font-weight:700">Importar backup<input type="file" id="importFile" accept="application/json" hidden></label><button class="danger" id="clearDay">Limpar dia selecionado</button></div>
   <p class="note">Os dados ficam armazenados neste navegador e aparelho. Exporte um backup regularmente. Limpar o dia apaga alimentação, água e jejum daquela data.</p>
  </section>
-</div></main>
+</div></main></div>
 <footer>Ferramenta pessoal de acompanhamento. Estimativas nutricionais variam conforme marcas, preparo e porções. Metas de calorias, água e macronutrientes são referências ajustáveis e não substituem avaliação profissional.</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL='https://xxzqrirkxqifnfghftjl.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_cyTTXR1jZlkMW0pijBmGcw_pja9779C';
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let currentUser=null,cloudTimer=null,cloudBusy=false;
+function authMessage(message,isError=false){const el=document.getElementById('authMessage');el.textContent=message;el.style.color=isError?'#b94a42':'#68766d'}
+function setAuthenticated(user){
+ currentUser=user;
+ document.getElementById('authGate').classList.toggle('hidden',!!user);
+ document.getElementById('appContent').classList.toggle('hidden',!user);
+ document.getElementById('accountBar').classList.toggle('hidden',!user);
+ document.getElementById('accountEmail').textContent=user?.email||'';
+}
+async function syncToCloud(){
+ if(!currentUser||cloudBusy)return;
+ cloudBusy=true;
+ try{
+  const payload=JSON.parse(localStorage.getItem(KEY)||'{}');
+  const {error}=await supabaseClient.from('user_data').upsert({user_id:currentUser.id,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  if(error)throw error;
+ }catch(e){console.error('Falha na sincronização:',e);authMessage('Não foi possível sincronizar agora. Seus dados continuam salvos neste aparelho.',true)}
+ finally{cloudBusy=false}
+}
+async function loadCloudData(user){
+ const {data,error}=await supabaseClient.from('user_data').select('data').eq('user_id',user.id).maybeSingle();
+ if(error)throw error;
+ if(data?.data&&data.data.settings&&data.data.days&&Array.isArray(data.data.weights)){
+  localStorage.setItem(KEY,JSON.stringify(data.data));return true;
+ }
+ return false;
+}
+async function handleAuth(mode){
+ const email=document.getElementById('authEmail').value.trim(),password=document.getElementById('authPassword').value;
+ if(!email||password.length<6){authMessage('Informe um e-mail válido e uma senha com pelo menos 6 caracteres.',true);return}
+ const buttons=[document.getElementById('loginBtn'),document.getElementById('signupBtn')];buttons.forEach(b=>b.disabled=true);
+ authMessage(mode==='signup'?'Criando sua conta...':'Entrando...');
+ try{
+  const result=mode==='signup'?await supabaseClient.auth.signUp({email,password}):await supabaseClient.auth.signInWithPassword({email,password});
+  if(result.error)throw result.error;
+  if(mode==='signup'&&!result.data.session){authMessage('Cadastro criado. Confira seu e-mail e confirme o endereço antes de entrar.');return}
+  const user=result.data.user;if(!user)throw new Error('Não foi possível identificar sua conta.');
+  currentUser=user;
+  const hasCloud=await loadCloudData(user);
+  if(!hasCloud)await syncToCloud();
+  setAuthenticated(user);render();authMessage('Conta conectada e dados sincronizados.');
+ }catch(e){authMessage(e.message||'Erro ao autenticar. Confira os dados e tente novamente.',true)}
+ finally{buttons.forEach(b=>b.disabled=false)}
+}
+document.getElementById('authForm').addEventListener('submit',e=>{e.preventDefault();handleAuth('login')});
+document.getElementById('signupBtn').addEventListener('click',()=>handleAuth('signup'));
+document.getElementById('signOutBtn').addEventListener('click',async()=>{
+ await syncToCloud();const {error}=await supabaseClient.auth.signOut();
+ if(error){authMessage(error.message,true);return}setAuthenticated(null);
+});
+(async()=>{
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(session?.user){
+  try{currentUser=session.user;const hasCloud=await loadCloudData(session.user);if(!hasCloud)await syncToCloud();setAuthenticated(session.user);render()}
+  catch(e){authMessage('Não foi possível carregar os dados da nuvem: '+e.message,true)}
+ }
+})();
+
 const $=id=>document.getElementById(id),KEY='meuControleSaude_v2',dateNow=()=>{let d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)},fmt=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1}),mealNames={breakfast:'Café',lunch:'Almoço',snack:'Lanche',dinner:'Jantar',other:'Outros'};
 const base={settings:{calGoal:1800,waterGoal:2.7,targetWeight:75,proteinGoal:140,carbGoal:165,fatGoal:60,height:170,age:24,startWeight:87.7,startGoal:77.7},days:{'2026-11-05':{foods:[
 {id:1,name:'Café com açúcar',qty:'2 xícaras',meal:'breakfast',kcal:72,p:0,c:18,f:0},
@@ -118,7 +197,10 @@ let data;try{data=JSON.parse(localStorage.getItem(KEY))||JSON.parse(localStorage
 data.settings={...base.settings,...(data.settings||{})};data.days=data.days||{};data.weights=data.weights||[];
 // Upgrade records from first version, preserving the exact logged food values.
 for(const [date,d] of Object.entries(data.days)){d.foods=(d.foods||[]).map(f=>({...f,meal:f.meal||'other',p:Number(f.p??f.protein??0),c:Number(f.c??f.carb??0),f:Number(f.f??f.fat??0)}));d.waterEntries=d.waterEntries||[];d.fast=d.fast||{lastMeal:'',firstCalories:''};}
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function save(){
+ localStorage.setItem(KEY,JSON.stringify(data));
+ if(currentUser){clearTimeout(cloudTimer);cloudTimer=setTimeout(syncToCloud,700)}
+}
 function day(){let k=$('day').value;if(!data.days[k])data.days[k]={foods:[],water:0,waterEntries:[],fast:{lastMeal:'',firstCalories:''}};return data.days[k]}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function sum(d,key){return d.foods.reduce((a,x)=>a+Number(x[key]||0),0)}
