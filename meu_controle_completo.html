@@ -257,14 +257,14 @@ function foodNorm(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u03
 function parseFoodAmount(value,food){
  const s=String(value||'').trim().toLowerCase().replace(',','.');if(!s)return food.unitWeight||100;
  const n=Number((s.match(/\d+(?:\.\d+)?/)||[])[0]);if(!Number.isFinite(n)||n<=0)return null;
- if(/\b(un|unid|unidade|unidades|ovo|ovos|banana|fatias?|colher(?:es)?|scoop)\b/.test(s))return n*(food.unitWeight||food.servingGrams||100);
+ if(/\b(un|unid|unidade|unidades|ovo|ovos|banana|fatias?|colher(?:es)?|scoop|porcao)\b/.test(s))return n*(food.unitWeight||food.servingGrams||100);
  if(/\bkg\b/.test(s))return n*1000;
  if(/\b(ml|litro|litros|l)\b/.test(s))return n*(/\blitro|\bl\b/.test(s)?1000:1);
  if(/\b(pacote|barra|embalagem)\b/.test(s))return n*(food.servingGrams||food.packageGrams||100);
  return n;
 }
 function updateFoodMacros(){if(!selectedFoodNutrition)return;const amount=parseFoodAmount($('foodQty').value,selectedFoodNutrition);if(!amount)return;const factor=amount/100;$('foodKcal').value=Math.round(selectedFoodNutrition.kcal*factor);$('foodProtein').value=(selectedFoodNutrition.p*factor).toFixed(1);$('foodCarb').value=(selectedFoodNutrition.c*factor).toFixed(1);$('foodFat').value=(selectedFoodNutrition.f*factor).toFixed(1)}
-function chooseFoodNutrition(food){selectedFoodNutrition=food;$('foodName').value=food.name;if(!$('foodQty').value.trim())$('foodQty').value=food.unitWeight?'1 unidade':'100 '+(food.basis||'g');$('foodSearchStatus').textContent='Fonte: '+food.source+'. Valores por 100 '+(food.basis||'g')+'; ajuste a quantidade para recalcular.';$('foodSearchResults').innerHTML='';updateFoodMacros()}
+function chooseFoodNutrition(food){selectedFoodNutrition=food;$('foodName').value=food.name;if(!$('foodQty').value.trim())$('foodQty').value=food.unitWeight?'1 unidade':food.servingGrams?'1 porção':'100 '+(food.basis||'g');$('foodSearchStatus').textContent='Fonte: '+food.source+'. Valores por 100 '+(food.basis||'g')+'; ajuste a quantidade para recalcular.';$('foodSearchResults').innerHTML='';updateFoodMacros()}
 function renderFoodMatches(items){$('foodSearchResults').innerHTML=items.map((f,i)=>'<button type="button" data-food-result="'+i+'">'+esc(f.name)+'<small>'+esc(f.source)+' · '+Math.round(f.kcal)+' kcal / 100 '+(f.basis||'g')+'</small></button>').join('')||'<div class="small muted">Nenhuma correspondência confiável. Você pode preencher os valores manualmente.</div>';$('foodSearchResults').querySelectorAll('[data-food-result]').forEach(b=>b.onclick=()=>chooseFoodNutrition(items[Number(b.dataset.foodResult)]))}
 async function searchSmartFood(){
  const query=$('foodName').value.trim();if(query.length<2){$('foodSearchStatus').textContent='Digite pelo menos duas letras.';return}
@@ -281,7 +281,7 @@ async function searchSmartFood(){
  }catch(error){$('foodSearchStatus').textContent='A pesquisa falhou. Você ainda pode lançar os valores manualmente.';console.error(error)}
  finally{btn.disabled=false;btn.textContent='Buscar'}
 }
-$('foodSearchBtn').onclick=searchSmartFood;$('foodName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchSmartFood()}});$('foodQty').addEventListener('input',updateFoodMacros);
+$('foodSearchBtn').onclick=searchSmartFood;$('foodName').addEventListener('input',()=>{selectedFoodNutrition=null});$('foodName').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();searchSmartFood()}});$('foodQty').addEventListener('input',updateFoodMacros);
 
 $('foodForm').onsubmit=e=>{e.preventDefault();day().foods.push({id:Date.now(),name:$('foodName').value.trim(),qty:$('foodQty').value.trim(),meal:$('foodMeal').value,kcal:Number($('foodKcal').value),p:Number($('foodProtein').value||0),c:Number($('foodCarb').value||0),f:Number($('foodFat').value||0),nutritionSource:selectedFoodNutrition?.source||'Informado manualmente'});save();e.target.reset();selectedFoodNutrition=null;$('foodSearchStatus').textContent='Pesquise um alimento para preencher os nutrientes automaticamente.';render()};
 $('foodList').onclick=e=>{let del=e.target.dataset.del,edit=e.target.dataset.edit;if(del){day().foods=day().foods.filter(f=>String(f.id)!==del);save();render()}if(edit){let f=day().foods.find(f=>String(f.id)===edit);if(!f)return;let name=prompt('Alimento:',f.name);if(name===null)return;let qty=prompt('Quantidade:',f.qty||'');if(qty===null)return;let kcal=prompt('Calorias:',f.kcal);if(kcal===null)return;let p=prompt('Proteína (g):',f.p);if(p===null)return;let c=prompt('Carboidratos (g):',f.c);if(c===null)return;let fat=prompt('Gorduras (g):',f.f);if(fat===null)return;Object.assign(f,{name,qty,kcal:Number(kcal)||0,p:Number(p)||0,c:Number(c)||0,f:Number(fat)||0});save();render()}};
