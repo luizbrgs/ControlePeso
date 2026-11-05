@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173b28">
+<title>Meu Controle — Saúde e alimentação</title>
+<style>
+:root{--bg:#f4f7f4;--card:#fff;--ink:#17221b;--muted:#68766d;--line:#e2e9e3;--green:#247b49;--green-soft:#e9f4ec;--red:#b94a42;--amber:#a66a15;--shadow:0 7px 24px #183b2510}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:linear-gradient(120deg,#173b28,#24583a);color:#fff;padding:24px 18px 34px}.wrap{max-width:1120px;margin:auto}.head{display:flex;justify-content:space-between;gap:16px;align-items:center}h1{font-size:25px;margin:0}header p{margin:4px 0 0;color:#d6e6da}.datebar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:20px}.datebar input{background:#fff;color:#17221b}
+main{max-width:1120px;margin:-13px auto 40px;padding:0 15px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:17px;box-shadow:var(--shadow);min-width:0}.s12{grid-column:span 12}.s8{grid-column:span 8}.s7{grid-column:span 7}.s6{grid-column:span 6}.s5{grid-column:span 5}.s4{grid-column:span 4}
+h2{font-size:16px;margin:0 0 13px}.muted,.small{color:var(--muted)}.small{font-size:12px}.big{font-size:30px;font-weight:780;letter-spacing:-1px}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.pill{display:inline-block;padding:4px 9px;border-radius:30px;background:var(--green-soft);color:#21653c;font-size:11px;font-weight:750}.progress{height:9px;border-radius:30px;background:#edf1ed;overflow:hidden;margin:11px 0 7px}.progress span{display:block;height:100%;background:var(--green);border-radius:30px;width:0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{background:#f7faf7;border-radius:12px;padding:11px;min-width:0}.stat strong{display:block;font-size:18px;overflow-wrap:anywhere}.stat small{font-size:11px;color:var(--muted)}
+input,select,textarea,button{font:inherit}input,select,textarea{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;color:var(--ink);min-width:0}input[type=number]{width:100%}input[type=date],input[type=time],input[type=datetime-local]{width:100%}button{border:0;border-radius:10px;background:var(--green);color:#fff;padding:9px 13px;font-weight:700;cursor:pointer}button:hover{filter:brightness(.96)}button.secondary{background:#edf3ee;color:#244a32}button.ghost{background:transparent;color:var(--green);padding:6px}button.danger{background:#fff0ef;color:#a43b32;padding:6px 9px}form{margin:0}.formgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;gap:8px;align-items:end}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:11px;color:var(--muted)}.field input,.field select{width:100%}.foodlist{display:flex;flex-direction:column}.food{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.food:last-child{border:0}.food b{font-size:13px}.food .meta{font-size:11px;color:var(--muted)}.food .kcal{text-align:right;font-weight:750;white-space:nowrap}.actions{display:flex;gap:4px}.empty{color:var(--muted);font-size:13px;padding:12px 0}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}.tab{background:#edf3ee;color:#355641}.tab.active{background:#173b28;color:white}.panel{display:none}.panel.active{display:block}.macroline{display:grid;grid-template-columns:76px 1fr 65px;gap:9px;align-items:center;margin:10px 0;font-size:12px}.macroline .progress{margin:0}.macroline .progress span{background:#568b69}.waterBtns,.quickBtns{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.waterBtns button{background:var(--green-soft);color:#21653c}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.listrows{display:flex;flex-direction:column;gap:0}.listrows>div{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}.listrows>div:last-child{border:0}.chart{width:100%;height:180px;display:block}.note{font-size:11px;color:var(--muted);margin:10px 0 0}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}.sectionhead h2{margin:0}.badgewarn{background:#fff4df;color:#88570d}.badgegood{background:var(--green-soft);color:#21653c}.dangertext{color:var(--red)}.hidden{display:none!important}
+footer{max-width:1120px;padding:0 15px 30px;margin:auto;color:var(--muted);font-size:11px}
+@media(max-width:800px){.s8,.s7,.s6,.s5,.s4{grid-column:span 12}.formgrid{grid-template-columns:1fr 1fr}.formgrid .wide{grid-column:span 2}.head{align-items:flex-start}.big{font-size:27px}}
+@media(max-width:420px){.stats{grid-template-columns:1fr 1fr}.food{grid-template-columns:minmax(0,1fr) auto}.food .actions{grid-column:1/-1;justify-content:flex-end}.formgrid{grid-template-columns:1fr 1fr}.datebar input{max-width:155px}}
+</style></head>
+<body>
+<header><div class="wrap">
+ <div class="head"><div><h1>Meu Controle</h1><p>Seu painel completo de alimentação, hidratação, jejum e evolução.</p></div><span class="pill">DIÁRIO PESSOAL</span></div>
+ <div class="datebar"><label for="day">Data:</label><input id="day" type="date"><button class="secondary" id="todayBtn">Hoje</button><button class="secondary" id="prevBtn">‹ Dia anterior</button><button class="secondary" id="nextBtn">Próximo dia ›</button></div>
+</div></header>
+<main>
+<div class="grid">
+ <section class="card s8">
+  <div class="sectionhead"><h2>Resumo de calorias</h2><span class="pill" id="calPct">0% da meta</span></div>
+  <div class="row"><div><div class="big" id="calTotal">0 kcal</div><div class="small">consumidas no dia</div></div><div style="text-align:right"><div class="big" id="calLeft">1.800</div><div class="small">kcal restantes</div></div></div>
+  <div class="progress"><span id="calBar"></span></div><div class="row small"><span>Meta diária</span><b id="calGoalLabel">1.800 kcal</b></div>
+  <div class="stats" style="margin-top:13px"><div class="stat"><small>Proteínas</small><strong id="proteinTotal">0 g</strong></div><div class="stat"><small>Carboidratos</small><strong id="carbTotal">0 g</strong></div><div class="stat"><small>Gorduras</small><strong id="fatTotal">0 g</strong></div></div>
+ </section>
+ <section class="card s4">
+  <h2>Água</h2><div class="row"><div class="big" id="waterTotal">0 L</div><span class="small" id="waterPct">0%</span></div>
+  <div class="progress"><span id="waterBar"></span></div><div class="small" id="waterRemaining">Meta: 2,7 L</div>
+  <div class="waterBtns"><button data-water="200">+200 ml</button><button data-water="300">+300 ml</button><button data-water="500">+500 ml</button><button data-water="1000">+1 L</button><button class="secondary" id="waterUndo">Desfazer</button></div>
+  <div class="field" style="margin-top:12px"><label>Adicionar quantidade personalizada (ml)</label><div class="row"><input id="waterCustom" type="number" min="1" placeholder="Ex.: 350"><button id="waterAdd">Adicionar</button></div></div>
+ </section>
+ <section class="card s7">
+  <div class="sectionhead"><h2>Diário alimentar</h2><span class="small" id="foodCount">0 itens</span></div>
+  <div class="tabs"><button class="tab active" data-tab="all">Todos</button><button class="tab" data-tab="breakfast">Café</button><button class="tab" data-tab="lunch">Almoço</button><button class="tab" data-tab="snack">Lanche</button><button class="tab" data-tab="dinner">Jantar</button><button class="tab" data-tab="other">Outros</button></div>
+  <div id="foodList" class="foodlist"></div>
+  <form id="foodForm" style="margin-top:14px">
+   <div class="formgrid">
+    <div class="field wide"><label>Alimento / bebida</label><input id="foodName" placeholder="Ex.: arroz, banana, refrigerante" required></div>
+    <div class="field"><label>Refeição</label><select id="foodMeal"><option value="breakfast">Café</option><option value="lunch">Almoço</option><option value="snack" selected>Lanche</option><option value="dinner">Jantar</option><option value="other">Outros</option></select></div>
+    <div class="field"><label>Quantidade</label><input id="foodQty" placeholder="150 g / 1 un."></div>
+    <div class="field"><label>Calorias</label><input id="foodKcal" type="number" min="0" step="1" placeholder="kcal" required></div>
+    <div class="field"><label>Proteína (g)</label><input id="foodProtein" type="number" min="0" step=".1" placeholder="0"></div>
+    <div class="field"><label>Carboidrato (g)</label><input id="foodCarb" type="number" min="0" step=".1" placeholder="0"></div>
+    <div class="field"><label>Gordura (g)</label><input id="foodFat" type="number" min="0" step=".1" placeholder="0"></div>
+    <button class="wide">Adicionar</button>
+   </div>
+  </form>
+  <p class="note">Você pode lançar estimativas ou os valores do rótulo. Use editar para corrigir quantidade, calorias ou macros depois.</p>
+ </section>
+ <section class="card s5">
+  <h2>Macros e metas</h2><div id="macroBars"></div>
+  <form id="macroGoalForm" class="two" style="margin-top:14px">
+   <div class="field"><label>Proteína (g/dia)</label><input id="proteinGoal" type="number" min="0" max="500"></div>
+   <div class="field"><label>Carboidrato (g/dia)</label><input id="carbGoal" type="number" min="0" max="700"></div>
+   <div class="field"><label>Gordura (g/dia)</label><input id="fatGoal" type="number" min="0" max="300"></div>
+   <div class="field" style="justify-content:end"><button>Salvar metas</button></div>
+  </form>
+  <p class="note">Metas iniciais editáveis: proteína 140 g, carboidratos 165 g e gorduras 60 g. São referências aproximadas, não prescrições.</p>
+ </section>
+ <section class="card s6">
+  <h2>Jejum</h2><div class="row"><div><div class="big" id="fastDuration">—</div><div class="small" id="fastStatus">Informe os horários para calcular.</div></div><span id="fastBadge" class="pill badgewarn">Não informado</span></div>
+  <div class="two" style="margin-top:14px">
+   <div class="field"><label>Última refeição / calorias</label><input id="lastMeal" type="datetime-local"></div>
+   <div class="field"><label>Primeiro consumo calórico</label><input id="firstCalories" type="datetime-local"></div>
+  </div>
+  <div class="quickBtns"><button id="saveFast">Calcular e salvar</button><button class="secondary" id="startFast">Iniciar jejum agora</button><button class="secondary" id="endFast">Encerrar agora</button></div>
+  <p class="note">O jejum é opcional. Água, café sem açúcar e chá sem calorias não adicionam calorias ao diário; açúcar e leite contam como consumo calórico. Não force o jejum se sentir mal-estar.</p>
+ </section>
+ <section class="card s6">
+  <h2>Registro de peso</h2><div class="stats">
+   <div class="stat"><small>Peso mais recente</small><strong id="currentWeight">87,7 kg</strong></div>
+   <div class="stat"><small>Meta final</small><strong id="targetWeight">75 kg</strong></div>
+   <div class="stat"><small>Diferença</small><strong id="toLose">12,7 kg</strong></div>
+  </div>
+  <form id="weightForm" class="row" style="margin-top:13px"><input id="weightInput" type="number" min="20" max="350" step=".1" placeholder="Peso em kg" required><button>Registrar</button></form>
+  <div class="field" style="margin-top:12px"><label>Meta de peso (kg)</label><div class="row"><input id="targetInput" type="number" min="20" max="350" step=".1"><button class="secondary" id="saveTarget">Salvar meta</button></div></div>
+  <div id="weightHistory" class="listrows" style="margin-top:10px"></div>
+ </section>
+ <section class="card s12">
+  <div class="sectionhead"><h2>Evolução semanal</h2><span class="small">Últimos 7 dias até a data selecionada</span></div>
+  <svg id="weekChart" class="chart" viewBox="0 0 700 180" role="img" aria-label="Gráfico de calorias dos últimos sete dias"></svg>
+  <div class="row small"><span>Consumo calórico por dia</span><span id="weekAverage">Média: —</span></div>
+ </section>
+ <section class="card s6">
+  <h2>Configurações diárias</h2>
+  <form id="settingsForm" class="two">
+   <div class="field"><label>Meta de calorias (kcal)</label><input id="calGoal" type="number" min="500" max="6000" step="50"></div>
+   <div class="field"><label>Meta de água (litros)</label><input id="waterGoal" type="number" min=".5" max="8" step=".1"></div>
+   <div class="field"><label>Altura (cm)</label><input id="height" type="number" min="100" max="230"></div>
+   <div class="field"><label>Idade</label><input id="age" type="number" min="10" max="110"></div>
+   <div class="field"><label>Peso inicial (kg)</label><input id="startWeight" type="number" min="20" max="350" step=".1"></div>
+   <div class="field" style="justify-content:end"><button>Salvar configurações</button></div>
+  </form>
+  <div class="stats" style="margin-top:12px"><div class="stat"><small>IMC estimado</small><strong id="bmi">—</strong></div><div class="stat"><small>Variação desde início</small><strong id="weightChange">—</strong></div><div class="stat"><small>Meta inicial</small><strong id="startGoal">77,7 kg</strong></div></div>
+  <p class="note">O IMC é apenas um indicador geral e não avalia composição corporal. Não use sozinho para julgar saúde.</p>
+ </section>
+ <section class="card s6">
+  <h2>Histórico e segurança dos dados</h2><div id="dayHistory" class="listrows"></div>
+  <div class="quickBtns"><button class="secondary" id="exportBtn">Exportar backup</button><label class="secondary" style="padding:9px 13px;border-radius:10px;cursor:pointer;font-weight:700">Importar backup<input type="file" id="importFile" accept="application/json" hidden></label><button class="danger" id="clearDay">Limpar dia selecionado</button></div>
+  <p class="note">Os dados ficam armazenados neste navegador e aparelho. Exporte um backup regularmente. Limpar o dia apaga alimentação, água e jejum daquela data.</p>
+ </section>
+</div></main>
+<footer>Ferramenta pessoal de acompanhamento. Estimativas nutricionais variam conforme marcas, preparo e porções. Metas de calorias, água e macronutrientes são referências ajustáveis e não substituem avaliação profissional.</footer>
+<script>
+const $=id=>document.getElementById(id),KEY='meuControleSaude_v2',dateNow=()=>{let d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)},fmt=n=>Number(n||0).toLocaleString('pt-BR',{maximumFractionDigits:1}),mealNames={breakfast:'Café',lunch:'Almoço',snack:'Lanche',dinner:'Jantar',other:'Outros'};
+const base={settings:{calGoal:1800,waterGoal:2.7,targetWeight:75,proteinGoal:140,carbGoal:165,fatGoal:60,height:170,age:24,startWeight:87.7,startGoal:77.7},days:{'2026-11-05':{foods:[
+{id:1,name:'Café com açúcar',qty:'2 xícaras',meal:'breakfast',kcal:72,p:0,c:18,f:0},
+{id:2,name:'Marmita (arroz, feijão, carne bovina e farofa)',qty:'350 g',meal:'lunch',kcal:641,p:45.5,c:56,f:17.5},
+{id:3,name:'Sprite Original',qty:'200 ml',meal:'lunch',kcal:81,p:0,c:21,f:0},
+{id:4,name:'Molho barbecue',qty:'1 colher',meal:'lunch',kcal:20,p:0,c:5,f:0},
+{id:5,name:'Baton',qty:'2 unidades',meal:'snack',kcal:170,p:2,c:22,f:9}],water:2400,waterEntries:[2400],fast:{lastMeal:'2026-11-04T22:30',firstCalories:'2026-11-05T09:30'}}},weights:[{date:'2026-11-05',kg:87.7}]};
+let data;try{data=JSON.parse(localStorage.getItem(KEY))||JSON.parse(localStorage.getItem('meuControleSaude_v1'))||base}catch(e){data=base}
+data.settings={...base.settings,...(data.settings||{})};data.days=data.days||{};data.weights=data.weights||[];
+// Upgrade records from first version, preserving the exact logged food values.
+for(const [date,d] of Object.entries(data.days)){d.foods=(d.foods||[]).map(f=>({...f,meal:f.meal||'other',p:Number(f.p??f.protein??0),c:Number(f.c??f.carb??0),f:Number(f.f??f.fat??0)}));d.waterEntries=d.waterEntries||[];d.fast=d.fast||{lastMeal:'',firstCalories:''};}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function day(){let k=$('day').value;if(!data.days[k])data.days[k]={foods:[],water:0,waterEntries:[],fast:{lastMeal:'',firstCalories:''}};return data.days[k]}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function sum(d,key){return d.foods.reduce((a,x)=>a+Number(x[key]||0),0)}
+let activeTab='all';
+function render(){
+ const d=day(),s=data.settings,cal=sum(d,'kcal'),water=Number(d.water||0),cg=Number(s.calGoal),wg=Number(s.waterGoal);
+ $('calTotal').textContent=fmt(cal)+' kcal';$('calLeft').textContent=fmt(Math.max(0,cg-cal));$('calPct').textContent=fmt(cal/cg*100)+'% da meta';$('calBar').style.width=Math.min(100,cal/cg*100)+'%';$('calGoalLabel').textContent=fmt(cg)+' kcal';
+ $('proteinTotal').textContent=fmt(sum(d,'p'))+' g';$('carbTotal').textContent=fmt(sum(d,'c'))+' g';$('fatTotal').textContent=fmt(sum(d,'f'))+' g';
+ $('waterTotal').textContent=fmt(water/1000)+' L';$('waterPct').textContent=fmt(water/(wg*1000)*100)+'%';$('waterBar').style.width=Math.min(100,water/(wg*1000)*100)+'%';$('waterRemaining').textContent=water>=wg*1000?'Meta atingida':`Meta: ${fmt(wg)} L · faltam ${fmt(Math.max(0,wg*1000-water)/1000)} L`;
+ $('foodCount').textContent=d.foods.length+' registros';
+ let foods=d.foods.filter(f=>activeTab==='all'||f.meal===activeTab);
+ $('foodList').innerHTML=foods.length?foods.map(f=>`<div class="food"><div><b>${esc(f.name)}</b><div class="meta">${mealNames[f.meal]||'Outros'} · ${esc(f.qty||'Quantidade não informada')} · P ${fmt(f.p)}g / C ${fmt(f.c)}g / G ${fmt(f.f)}g</div></div><div class="kcal">${fmt(f.kcal)} kcal</div><div class="actions"><button class="secondary" data-edit="${f.id}">Editar</button><button class="danger" data-del="${f.id}">Excluir</button></div></div>`).join(''):'<div class="empty">Nenhum alimento nesta categoria.</div>';
+ $('macroBars').innerHTML=[['Proteína',sum(d,'p'),s.proteinGoal],['Carboidrato',sum(d,'c'),s.carbGoal],['Gordura',sum(d,'f'),s.fatGoal]].map(([n,v,g])=>`<div class="macroline"><b>${n}</b><div class="progress"><span style="width:${Math.min(100,v/Math.max(1,g)*100)}%"></span></div><span>${fmt(v)} / ${fmt(g)} g</span></div>`).join('');
+ $('proteinGoal').value=s.proteinGoal;$('carbGoal').value=s.carbGoal;$('fatGoal').value=s.fatGoal;
+ $('lastMeal').value=d.fast.lastMeal||'';$('firstCalories').value=d.fast.firstCalories||'';
+ const a=d.fast.lastMeal,b=d.fast.firstCalories,valid=a&&b&&new Date(b)>=new Date(a);
+ if(valid){let m=Math.round((new Date(b)-new Date(a))/60000);$('fastDuration').textContent=Math.floor(m/60)+'h '+m%60+'min';$('fastStatus').textContent='Da última refeição ao primeiro consumo calórico.';$('fastBadge').textContent='Calculado';$('fastBadge').className='pill badgegood'}else{$('fastDuration').textContent='—';$('fastStatus').textContent='Informe os horários para calcular.';$('fastBadge').textContent='Não informado';$('fastBadge').className='pill badgewarn'}
+ const ws=[...data.weights].sort((a,b)=>b.date.localeCompare(a.date)),latest=ws[0]?.kg,target=Number(s.targetWeight);
+ $('currentWeight').textContent=latest?fmt(latest)+' kg':'—';$('targetWeight').textContent=fmt(target)+' kg';$('toLose').textContent=latest?fmt(Math.max(0,latest-target))+' kg':'—';$('targetInput').value=target;
+ $('weightHistory').innerHTML=ws.slice(0,5).map(w=>`<div><span>${new Date(w.date+'T12:00:00').toLocaleDateString('pt-BR')}</span><b>${fmt(w.kg)} kg</b></div>`).join('')||'<div class="empty">Sem pesagens registradas.</div>';
+ $('calGoal').value=s.calGoal;$('waterGoal').value=s.waterGoal;$('height').value=s.height;$('age').value=s.age;$('startWeight').value=s.startWeight;$('startGoal').textContent=fmt(s.startGoal)+' kg';
+ let bmi=latest?latest/Math.pow(Number(s.height)/100,2):0;$('bmi').textContent=bmi?fmt(bmi):'—';$('weightChange').textContent=latest?((latest-Number(s.startWeight)>0?'+':'')+fmt(latest-Number(s.startWeight))+' kg'):'—';
+ renderChart();renderHistory();
+}
+function renderChart(){
+ let dates=[];let baseDate=new Date($('day').value+'T12:00:00');for(let i=6;i>=0;i--){let x=new Date(baseDate);x.setDate(x.getDate()-i);dates.push(x.toISOString().slice(0,10))}
+ let vals=dates.map(k=>data.days[k]?.foods?.reduce((a,f)=>a+Number(f.kcal||0),0)||0),max=Math.max(2000,...vals),svg=$('weekChart'),bars='';
+ vals.forEach((v,i)=>{let x=28+i*96,h=v/max*112,y=137-h;bars+=`<rect x="${x}" y="${y}" width="48" height="${h}" rx="6" fill="#43865b"/><text x="${x+24}" y="${Math.max(14,y-6)}" text-anchor="middle" font-size="10" fill="#526258">${v?Math.round(v):'—'}</text><text x="${x+24}" y="158" text-anchor="middle" font-size="10" fill="#68766d">${dates[i].slice(8,10)}/${dates[i].slice(5,7)}</text>`});
+ svg.innerHTML=`<line x1="12" y1="138" x2="690" y2="138" stroke="#dfe7e0"/>${bars}`;
+ let filled=vals.filter(v=>v>0);$('weekAverage').textContent='Média dos dias registrados: '+(filled.length?fmt(filled.reduce((a,b)=>a+b,0)/filled.length)+' kcal':'—');
+}
+function renderHistory(){let keys=Object.keys(data.days).sort().reverse().slice(0,8);$('dayHistory').innerHTML=keys.map(k=>{let d=data.days[k],c=sum(d,'kcal');return `<div><span>${new Date(k+'T12:00:00').toLocaleDateString('pt-BR')} · ${d.foods.length} itens · ${fmt((d.water||0)/1000)} L água</span><b>${fmt(c)} kcal</b></div>`}).join('')||'<div class="empty">Seu histórico aparecerá aqui.</div>'}
+$('day').value=dateNow();render();
+$('day').onchange=render;$('todayBtn').onclick=()=>{$('day').value=dateNow();render()};
+$('prevBtn').onclick=()=>{let d=new Date($('day').value+'T12:00:00');d.setDate(d.getDate()-1);$('day').value=d.toISOString().slice(0,10);render()};
+$('nextBtn').onclick=()=>{let d=new Date($('day').value+'T12:00:00');d.setDate(d.getDate()+1);$('day').value=d.toISOString().slice(0,10);render()};
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{activeTab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));render()});
+$('foodForm').onsubmit=e=>{e.preventDefault();day().foods.push({id:Date.now(),name:$('foodName').value.trim(),qty:$('foodQty').value.trim(),meal:$('foodMeal').value,kcal:Number($('foodKcal').value),p:Number($('foodProtein').value||0),c:Number($('foodCarb').value||0),f:Number($('foodFat').value||0)});save();e.target.reset();render()};
+$('foodList').onclick=e=>{let del=e.target.dataset.del,edit=e.target.dataset.edit;if(del){day().foods=day().foods.filter(f=>String(f.id)!==del);save();render()}if(edit){let f=day().foods.find(f=>String(f.id)===edit);if(!f)return;let name=prompt('Alimento:',f.name);if(name===null)return;let qty=prompt('Quantidade:',f.qty||'');if(qty===null)return;let kcal=prompt('Calorias:',f.kcal);if(kcal===null)return;let p=prompt('Proteína (g):',f.p);if(p===null)return;let c=prompt('Carboidratos (g):',f.c);if(c===null)return;let fat=prompt('Gorduras (g):',f.f);if(fat===null)return;Object.assign(f,{name,qty,kcal:Number(kcal)||0,p:Number(p)||0,c:Number(c)||0,f:Number(fat)||0});save();render()}};
+function addWater(n){let d=day();d.water=(d.water||0)+n;d.waterEntries=d.waterEntries||[];d.waterEntries.push(n);save();render()}
+document.querySelectorAll('[data-water]').forEach(b=>b.onclick=()=>addWater(Number(b.dataset.water)));
+$('waterAdd').onclick=()=>{let n=Number($('waterCustom').value);if(n>0){addWater(n);$('waterCustom').value=''}};
+$('waterUndo').onclick=()=>{let d=day();let n=d.waterEntries?.pop()||250;d.water=Math.max(0,(d.water||0)-n);save();render()};
+$('saveFast').onclick=()=>{day().fast={lastMeal:$('lastMeal').value,firstCalories:$('firstCalories').value};save();render()};
+$('startFast').onclick=()=>{$('lastMeal').value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);$('firstCalories').value='';day().fast={lastMeal:$('lastMeal').value,firstCalories:''};save();render()};
+$('endFast').onclick=()=>{$('firstCalories').value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);day().fast={lastMeal:$('lastMeal').value,firstCalories:$('firstCalories').value};save();render()};
+$('weightForm').onsubmit=e=>{e.preventDefault();data.weights.push({date:$('day').value,kg:Number($('weightInput').value)});save();e.target.reset();render()};
+$('saveTarget').onclick=()=>{data.settings.targetWeight=Number($('targetInput').value);save();render()};
+$('macroGoalForm').onsubmit=e=>{e.preventDefault();data.settings.proteinGoal=Number($('proteinGoal').value);data.settings.carbGoal=Number($('carbGoal').value);data.settings.fatGoal=Number($('fatGoal').value);save();render()};
+$('settingsForm').onsubmit=e=>{e.preventDefault();for(let id of ['calGoal','waterGoal','height','age','startWeight'])data.settings[id]=Number($(id).value);save();render()};
+$('clearDay').onclick=()=>{if(confirm('Apagar alimentos, água e jejum da data selecionada?')){data.days[$('day').value]={foods:[],water:0,waterEntries:[],fast:{lastMeal:'',firstCalories:''}};save();render()}};
+$('exportBtn').onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup-meu-controle.json';a.click();URL.revokeObjectURL(a.href)};
+$('importFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let x=JSON.parse(await f.text());if(!x.settings||!x.days||!x.weights)throw Error();data=x;save();render();alert('Backup importado.')}catch(err){alert('Arquivo de backup inválido.')}e.target.value=''};
+save();
+</script></body></html>
