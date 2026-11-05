@@ -23,10 +23,12 @@ footer{max-width:1120px;padding:0 15px 30px;margin:auto;color:var(--muted);font-
 #authMessage{min-height:20px;margin-top:12px;color:var(--muted);font-size:13px}
 #authActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 #appContent.hidden{display:none}
+#appHeader.hidden{display:none}
+#accountBar.hidden{display:none}
 #accountBar{display:flex;justify-content:flex-end;gap:10px;align-items:center;padding:10px 15px;color:#fff;font-size:12px}
 </style></head>
 <body>
-<header><div class="wrap">
+<header id="appHeader" class="hidden"><div class="wrap">
  <div class="head"><div><h1>Meu Controle</h1><p>Seu painel completo de alimentação, hidratação, jejum e evolução.</p></div><span class="pill">DIÁRIO PESSOAL</span></div>
  <div class="datebar"><label for="day">Data:</label><input id="day" type="date"><button class="secondary" id="todayBtn">Hoje</button><button class="secondary" id="prevBtn">‹ Dia anterior</button><button class="secondary" id="nextBtn">Próximo dia ›</button></div>
 </div></header>
@@ -132,6 +134,7 @@ let currentUser=null,cloudTimer=null,cloudBusy=false;
 function authMessage(message,isError=false){const el=document.getElementById('authMessage');el.textContent=message;el.style.color=isError?'#b94a42':'#68766d'}
 function setAuthenticated(user){
  currentUser=user;
+ document.getElementById('appHeader').classList.toggle('hidden',!user);
  document.getElementById('authGate').classList.toggle('hidden',!!user);
  document.getElementById('appContent').classList.toggle('hidden',!user);
  document.getElementById('accountBar').classList.toggle('hidden',!user);
