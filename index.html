@@ -294,6 +294,17 @@ const smartFoods=[
  {name:'Refrigerante cola',aliases:['coca cola','refrigerante cola','refrigerante'],basis:'ml',kcal:42,p:0,c:10.6,f:0,source:'Referência média por 100 ml; confira o rótulo'},
  {name:'Feijão preto cozido',aliases:['feijao preto'],basis:'g',kcal:77,p:4.5,c:14,f:0.5,source:'TACO · por 100 g'},
  {name:'Lentilha cozida',aliases:['lentilha','lentilha cozida'],basis:'g',kcal:93,p:6.3,c:16.3,f:0.5,source:'TACO · por 100 g'}
+,
+
+ {name:'Banana-prata',aliases:['banana prata'],basis:'g',kcal:98,p:1.3,c:26,f:0.1,unitWeight:75,source:'TBCA/TACO · referência média por 100 g'},
+ {name:'Banana-maçã',aliases:['banana maca','banana maçã'],basis:'g',kcal:87,p:1.8,c:22.3,f:0.1,unitWeight:80,source:'Referência média por 100 g'},
+ {name:'Banana-da-terra crua',aliases:['banana da terra','banana terra'],basis:'g',kcal:128,p:1.4,c:33.7,f:0.2,unitWeight:150,source:'Referência média por 100 g'},
+ {name:'Banana-ouro',aliases:['banana ouro'],basis:'g',kcal:112,p:1.5,c:29.3,f:0.2,unitWeight:50,source:'Referência média por 100 g'},
+ {name:'Coca-Cola original',aliases:['coca cola normal','coca cola tradicional','coca cola original'],basis:'ml',kcal:42,p:0,c:10.6,f:0,source:'Rótulo de referência · por 100 ml; confira a embalagem'},
+ {name:'Coca-Cola Zero Açúcar',aliases:['coca cola zero','coca zero','coca cola sem acucar'],basis:'ml',kcal:0.2,p:0,c:0,f:0,source:'Rótulo de referência · por 100 ml; confira a embalagem'},
+ {name:'Coca-Cola sem açúcar (2 L)',aliases:['coca cola zero 2 litros','coca cola zero 2l'],basis:'ml',kcal:0.2,p:0,c:0,f:0,source:'Rótulo de referência · por 100 ml; embalagem de 2 L'},
+ {name:'Coca-Cola original (2 L)',aliases:['coca cola 2 litros','coca cola 2l'],basis:'ml',kcal:42,p:0,c:10.6,f:0,source:'Rótulo de referência · por 100 ml; embalagem de 2 L'},
+ {name:'Guaraná Antarctica',aliases:['guarana antarctica','guarana'],basis:'ml',kcal:35,p:0,c:0,f:0,source:'Consulte o rótulo da versão e embalagem'}
 
 ];
 let selectedFoodNutrition=null;
@@ -312,31 +323,43 @@ function chooseFoodNutrition(food){selectedFoodNutrition=food;$('foodName').valu
 function renderFoodMatches(items){$('foodSearchResults').innerHTML=items.map((f,i)=>'<button type="button" data-food-result="'+i+'">'+esc(f.name)+'<small>'+esc(f.source)+' · '+Math.round(f.kcal)+' kcal / 100 '+(f.basis||'g')+'</small></button>').join('')||'<div class="small muted">Nenhuma correspondência confiável. Você pode preencher os valores manualmente.</div>';$('foodSearchResults').querySelectorAll('[data-food-result]').forEach(b=>b.onclick=()=>chooseFoodNutrition(items[Number(b.dataset.foodResult)]))}
 async function searchSmartFood(){
  const query=$('foodName').value.trim();if(query.length<2){$('foodSearchStatus').textContent='Digite pelo menos duas letras.';return}
- const btn=$('foodSearchBtn');btn.disabled=true;btn.textContent='Buscando...';$('foodSearchStatus').textContent='Procurando alimentos semelhantes e produtos de marcas...';
+ const btn=$('foodSearchBtn');btn.disabled=true;btn.textContent='Buscando...';$('foodSearchStatus').textContent='Pesquisando na base local e em produtos de várias marcas...';
  try{
   const norm=foodNorm(query),tokens=norm.split(' ').filter(x=>x.length>1);
   const singular=t=>t.length>4&&t.endsWith('s')?t.slice(0,-1):t;
   const local=smartFoods.map(f=>{
    const words=foodNorm(f.name+' '+(f.aliases||[]).join(' ')).split(' ');
    const score=tokens.reduce((n,t)=>n+(words.some(w=>w===t||w===singular(t)||t===singular(w)||(w.startsWith(t)&&t.length>=3))?1:0),0);
-   return {...f,score};
-  }).filter(f=>f.score>0).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'pt-BR')).slice(0,18);
+   const phrase=foodNorm(f.name+' '+(f.aliases||[]).join(' ')).includes(norm)?4:0;
+   return {...f,score:score+phrase};
+  }).filter(f=>f.score>0).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'pt-BR')).slice(0,30);
   let branded=[];
-  try{
-   const url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(query)+'&page_size=12&fields=product_name,brands,quantity,serving_size,product_quantity,nutriments,code';
-   const response=await fetch(url,{headers:{Accept:'application/json'}});
-   if(response.ok){
+  const searches=[query];
+  if(tokens.length>1)searches.push(tokens[0]);
+  if(/coca|cola|refrigerante/.test(norm))searches.push('Coca-Cola');
+  if(/banana/.test(norm))searches.push('banana');
+  const seenCodes=new Set();
+  for(const term of [...new Set(searches)]){
+   try{
+    const url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(term)+'&page_size=50&fields=product_name,brands,quantity,serving_size,nutriments,code';
+    const response=await fetch(url,{headers:{Accept:'application/json'}});
+    if(!response.ok)continue;
     const data=await response.json();
-    branded=(data.products||[]).map(p=>{
-     const n=p.nutriments||{},name=[p.product_name,p.brands].filter(Boolean).join(' — '),kcal=Number(n['energy-kcal_100g']??(Number(n.energy_100g||0)/4.184)),protein=Number(n.proteins_100g),carbs=Number(n.carbohydrates_100g),fat=Number(n.fat_100g),serving=String(p.serving_size||'').match(/([\d.,]+)\s*g/i),pack=String(p.quantity||'').match(/([\d.,]+)\s*g/i);
-     const words=foodNorm(name).split(' '),score=tokens.reduce((n,t)=>n+(words.some(w=>w===t||(w.startsWith(t)&&t.length>=3))?1:0),0);
-     return {name,basis:'g',kcal,p:protein,c:carbs,f:fat,servingGrams:serving?Number(serving[1].replace(',','.')):null,packageGrams:pack?Number(pack[1].replace(',','.')):null,source:'Open Food Facts · dados de rótulo enviados pela comunidade',score};
-    }).filter(f=>f.name&&[f.kcal,f.p,f.c,f.f].every(Number.isFinite)&&f.kcal>=0&&f.kcal<950&&f.score>0);
-   }
-  }catch(error){console.warn('Open Food Facts indisponível:',error)}
-  const combined=[...local,...branded].filter((f,i,arr)=>arr.findIndex(x=>foodNorm(x.name)===foodNorm(f.name))===i).sort((a,b)=>b.score-a.score).slice(0,24);
-  if(combined.length){$('foodSearchStatus').textContent=combined.length+' opção(ões) encontradas. Pesquise por termos gerais, como “pão”, para ver variedades.';renderFoodMatches(combined)}
-  else{$('foodSearchStatus').textContent='Não encontrei correspondência confiável. Tente um termo mais amplo ou informe os nutrientes manualmente.';$('foodSearchResults').innerHTML=''}
+    for(const p of data.products||[]){
+     if(!p.code||seenCodes.has(p.code))continue;seenCodes.add(p.code);
+     const n=p.nutriments||{},name=[p.product_name,p.brands].filter(Boolean).join(' — ');
+     const kcal=Number(n['energy-kcal_100g']??(Number(n.energy_100g||0)/4.184)),protein=Number(n.proteins_100g),carbs=Number(n.carbohydrates_100g),fat=Number(n.fat_100g);
+     const words=foodNorm(name).split(' '),score=tokens.reduce((v,t)=>v+(words.some(w=>w===t||w.startsWith(t)||t.startsWith(w))?1:0),0);
+     const serving=String(p.serving_size||'').match(/([\\d.,]+)\\s*g/i),pack=String(p.quantity||'').match(/([\\d.,]+)\\s*g/i);
+     if(name&&[kcal,protein,carbs,fat].every(Number.isFinite)&&kcal>=0&&kcal<950){
+      branded.push({name,basis:'g',kcal,p:protein,c:carbs,f:fat,servingGrams:serving?Number(serving[1].replace(',','.')):null,packageGrams:pack?Number(pack[1].replace(',','.')):null,source:'Open Food Facts · rótulo cadastrado pela comunidade',score:score+(/brasil|brazil/i.test(String(p.countries||''))?1:0)});
+     }
+    }
+   }catch(error){console.warn('Busca externa indisponível para '+term,error)}
+  }
+  const combined=[...local,...branded].filter((f,i,arr)=>arr.findIndex(x=>foodNorm(x.name)===foodNorm(f.name))===i).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'pt-BR')).slice(0,40);
+  if(combined.length){$('foodSearchStatus').textContent=combined.length+' opções encontradas. A base inclui alimentos genéricos e produtos de marcas; confira a fonte e o rótulo.';renderFoodMatches(combined)}
+  else{$('foodSearchStatus').textContent='Não encontrei dados suficientes. Tente uma busca mais ampla ou preencha pelo rótulo.';$('foodSearchResults').innerHTML=''}
  }catch(error){$('foodSearchStatus').textContent='A pesquisa falhou. Você ainda pode lançar os valores manualmente.';console.error(error)}
  finally{btn.disabled=false;btn.textContent='Buscar'}
 }
