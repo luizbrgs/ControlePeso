@@ -24,6 +24,36 @@ footer{max-width:1120px;padding:0 15px 30px;margin:auto;color:var(--muted);font-
 #authActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
 #appContent.hidden{display:none}
 #accountBar{display:flex;justify-content:flex-end;gap:10px;align-items:center;padding:10px 15px;color:#fff;font-size:12px}
+@media(max-width:600px){
+ header{padding:14px 14px 24px}
+ h1{font-size:21px}
+ header p{font-size:12px;max-width:250px}
+ .head{gap:8px;align-items:center}
+ .head>.pill{font-size:9px;white-space:nowrap}
+ .datebar{margin-top:12px;gap:6px}
+ .datebar label{font-size:12px}
+ .datebar input{flex:1;max-width:none;min-width:0}
+ .datebar button{padding:9px 10px;font-size:12px}
+ main{padding:0 10px;margin-top:-10px}
+ .grid{gap:10px}
+ .card{padding:13px;border-radius:14px}
+ .big{font-size:25px}
+ .stats{gap:7px}
+ .stat{padding:9px}
+ .stat strong{font-size:16px}
+ .formgrid{grid-template-columns:1fr 1fr;gap:9px}
+ .formgrid>*{min-width:0}
+ button{min-height:40px}
+ input,select,textarea{min-height:40px}
+ .sectionhead{align-items:flex-start}
+}
+@media(max-width:380px){
+ .head>.pill{display:none}
+ .stats{grid-template-columns:1fr 1fr}
+ .datebar{display:grid;grid-template-columns:auto 1fr auto}
+ .datebar input{grid-column:2}
+ .datebar button:last-child{grid-column:3}
+}
 </style></head>
 <body>
 <header><div class="wrap">
@@ -423,22 +453,17 @@ async function searchSmartFood(){
  const query=$('foodName').value.trim();
  if(query.length<2){$('foodSearchStatus').textContent='Digite pelo menos duas letras.';return}
  const btn=$('foodSearchBtn');btn.disabled=true;btn.textContent='Buscando...';
- $('foodSearchStatus').textContent='Pesquisando alimentos, variedades e produtos de marcas...';
+ $('foodSearchStatus').textContent='Pesquisando alimentos e produtos com correspondência no nome...';
  try{
   const norm=foodNorm(query),tokens=norm.split(' ').filter(x=>x.length>1);
   const singular=t=>t.length>4&&t.endsWith('s')?t.slice(0,-1):t;
   const local=smartFoods.map(f=>{
-   const words=foodNorm(f.name+' '+(f.aliases||[]).join(' ')).split(' ');
-   const score=tokens.reduce((n,t)=>n+(words.some(w=>w===t||w===singular(t)||t===singular(w)||(w.startsWith(t)&&t.length>=3))?2:0),0);
-   const phrase=foodNorm(f.name+' '+(f.aliases||[]).join(' ')).includes(norm)?6:0;
-   return {...f,score:score+phrase};
-  }).filter(f=>f.score>0).sort((a,b)=>b.score-a.score||a.name.localeCompare(b.name,'pt-BR')).slice(0,40);
+   const words=foodNorm(f.name).split(' ').filter(Boolean);
+   const matches=tokens.every(t=>words.some(w=>w===t||w.startsWith(t)));
+   return {...f,score:matches?10:0};
+  }).filter(f=>f.score>0).sort((a,b)=>a.name.localeCompare(b.name,'pt-BR')).slice(0,40);
   const branded=[],seen=new Set();
   const terms=[query];
-  if(tokens.length>1)terms.push(tokens.join(' '),tokens[0]);
-  if(/coca|cola|refrigerante|pepsi|guarana|fanta|sprite/.test(norm))terms.push('Coca-Cola','refrigerante zero','refrigerante original');
-  if(/banana/.test(norm))terms.push('banana prata','banana nanica','banana maca','banana da terra');
-  if(/arroz|feijao|frango|carne|leite|iogurte|pao/.test(norm))terms.push(tokens[0]+' brasileiro');
   for(const term of [...new Set(terms)]){
    for(let page=1;page<=3;page++){
     try{
@@ -453,8 +478,9 @@ async function searchSmartFood(){
       const kcal=Number(n['energy-kcal_100g']??(Number(n.energy_100g)/4.184));
       const protein=Number(n.proteins_100g),carbs=Number(n.carbohydrates_100g),fat=Number(n.fat_100g);
       if(!name||![kcal,protein,carbs,fat].every(Number.isFinite)||kcal<0||kcal>950)continue;
-      const words=foodNorm(name).split(' ');
-      const score=tokens.reduce((v,t)=>v+(words.some(w=>w===t||w.startsWith(t)||t.startsWith(w))?2:0),0);
+      const words=foodNorm(name).split(' ').filter(Boolean);
+      const score=tokens.every(t=>words.some(w=>w===t||w.startsWith(t)))?10:0;
+      if(score===0)continue;
       const country=String(p.countries_tags||p.countries||'').toLowerCase();
       const serving=String(p.serving_size||'').match(/([\\d.,]+)\\s*g/i);
       const pack=String(p.quantity||'').match(/([\\d.,]+)\\s*g/i);
