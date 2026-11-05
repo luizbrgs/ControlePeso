@@ -246,6 +246,10 @@ const smartFoods=[
  {name:'Peito de frango grelhado',aliases:['frango grelhado','peito de frango','frango'],basis:'g',kcal:159,p:32,c:0,f:2.5,source:'TACO · por 100 g'},
  {name:'Ovo cozido',aliases:['ovo cozido','ovo'],basis:'g',kcal:146,p:13.3,c:0.6,f:9.5,unitWeight:50,source:'TACO · por 100 g'},
  {name:'Pão francês',aliases:['pao frances','pao'],basis:'g',kcal:300,p:8,c:58.6,f:3.1,unitWeight:50,source:'TACO · por 100 g'},
+ {name:'Pão de forma tradicional (fatia)',aliases:['pao de forma','pao de forma tradicional','pao branco fatiado','pao de forma branco'],basis:'g',kcal:253,p:9.4,c:49.9,f:3.7,unitWeight:25,source:'TACO · referência média por 100 g; fatia estimada em 25 g'},
+ {name:'Pão de forma integral (fatia)',aliases:['pao integral','pao de forma integral','pao integral fatiado'],basis:'g',kcal:253,p:9.4,c:49.9,f:3.7,unitWeight:25,source:'Estimativa de referência por 100 g; confira o rótulo da marca'},
+ {name:'Pão de forma light',aliases:['pao light','pao de forma light'],basis:'g',kcal:235,p:10,c:43,f:2.5,unitWeight:25,source:'Estimativa de referência por 100 g; confira o rótulo da marca'},
+ {name:'Pão de queijo',aliases:['pao de queijo'],basis:'g',kcal:363,p:5.1,c:34.2,f:24.6,unitWeight:30,source:'TACO · por 100 g; unidade estimada em 30 g'},
  {name:'Batata inglesa cozida',aliases:['batata cozida','batata inglesa'],basis:'g',kcal:52,p:1.2,c:11.9,f:0,source:'TACO · por 100 g'},
  {name:'Macarrão cozido',aliases:['macarrao cozido','macarrao'],basis:'g',kcal:157,p:5.8,c:30.9,f:0.9,source:'TACO · por 100 g'},
  {name:'Leite integral',aliases:['leite integral','leite'],basis:'ml',kcal:61,p:3,c:4.7,f:3.3,source:'TACO · por 100 ml'},
@@ -271,11 +275,11 @@ async function searchSmartFood(){
  const btn=$('foodSearchBtn');btn.disabled=true;btn.textContent='Buscando...';$('foodSearchStatus').textContent='Consultando alimentos comuns e produtos de marcas...';
  try{
   const norm=foodNorm(query),tokens=norm.split(' ').filter(x=>x.length>2);
-  const local=smartFoods.map(f=>{const t=foodNorm(f.name+' '+(f.aliases||[]).join(' '));return {...f,score:tokens.filter(x=>t.includes(x)).length}}).filter(f=>f.score>0).sort((a,b)=>b.score-a.score).slice(0,5);
+  const local=smartFoods.map(f=>{const t=foodNorm(f.name+' '+(f.aliases||[]).join(' '));return {...f,score:tokens.filter(x=>t.includes(x)).length}}).filter(f=>f.score>=Math.min(2,tokens.length)).sort((a,b)=>b.score-a.score).slice(0,10);
   let branded=[];
   try{const url='https://world.openfoodfacts.org/api/v2/search?search_terms='+encodeURIComponent(query)+'&page_size=8&fields=product_name,brands,quantity,serving_size,product_quantity,nutriments,code';const response=await fetch(url,{headers:{Accept:'application/json'}});if(response.ok){const data=await response.json();branded=(data.products||[]).map(p=>{const n=p.nutriments||{},name=[p.product_name,p.brands].filter(Boolean).join(' — '),kcal=Number(n['energy-kcal_100g']??(Number(n.energy_100g||0)/4.184)),protein=Number(n.proteins_100g),carbs=Number(n.carbohydrates_100g),fat=Number(n.fat_100g),serving=String(p.serving_size||'').match(/([\d.,]+)\s*g/i),pack=String(p.quantity||'').match(/([\d.,]+)\s*g/i);return {name,basis:'g',kcal,p:protein,c:carbs,f:fat,servingGrams:serving?Number(serving[1].replace(',','.')):null,packageGrams:pack?Number(pack[1].replace(',','.')):null,source:'Open Food Facts · dados de rótulo enviados pela comunidade',score:foodNorm(name).split(' ').filter(x=>tokens.includes(x)).length}}).filter(f=>f.name&&[f.kcal,f.p,f.c,f.f].every(Number.isFinite)&&f.kcal>=0&&f.kcal<950&&f.score>=Math.min(1,tokens.length))}}
   catch(error){console.warn('Open Food Facts indisponível:',error)}
-  const combined=[...local,...branded].sort((a,b)=>b.score-a.score).slice(0,8);
+  const combined=[...local,...branded].filter(f=>tokens.length<2||f.score>=Math.min(2,tokens.length)).sort((a,b)=>b.score-a.score).slice(0,12);
   if(combined.length){$('foodSearchStatus').textContent=combined.length+' opção(ões) encontradas. Selecione a mais parecida com o alimento consumido.';renderFoodMatches(combined)}
   else{$('foodSearchStatus').textContent='Não encontrei correspondência confiável. Tente outro nome ou informe os nutrientes manualmente.';$('foodSearchResults').innerHTML=''}
  }catch(error){$('foodSearchStatus').textContent='A pesquisa falhou. Você ainda pode lançar os valores manualmente.';console.error(error)}
