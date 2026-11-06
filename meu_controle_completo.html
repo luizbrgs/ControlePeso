@@ -229,6 +229,9 @@ async function syncToCloud(){
     {onConflict:'user_id'}
    );
    if(error)throw error;
+   // Mirror the same snapshot into normalized tables for direct queries in Supabase.
+   const {error:normalizedError}=await supabaseClient.rpc('sync_controlpeso_data',{p_data:payload});
+   if(normalizedError)throw normalizedError;
   }while(cloudPending&&currentUser);
   cloudStatus('Sincronizado');
  }catch(e){
