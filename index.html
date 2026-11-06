@@ -748,5 +748,28 @@ $('settingsForm').onsubmit=e=>{e.preventDefault();for(let id of ['calGoal','wate
 $('clearDay').onclick=()=>{if(confirm('Apagar alimentos, água e jejum da data selecionada?')){data.days[$('day').value]={foods:[],water:0,waterEntries:[],fast:{lastMeal:'',firstCalories:''}};save();render()}};
 $('exportBtn').onclick=()=>{let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='backup-meu-controle.json';a.click();URL.revokeObjectURL(a.href)};
 $('importFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let x=JSON.parse(await f.text());if(!x.settings||!x.days||!x.weights)throw Error();data=x;save();render();alert('Backup importado.')}catch(err){alert('Arquivo de backup inválido.')}e.target.value=''};
+
+/* Navegação contextual do painel */
+(function(){
+ const modal=$('cpModal'),dateModal=$('cpDateModal');
+ const titles={food:'Adicionar refeição',water:'Hidratação',fast:'Jejum',weight:'Peso e evolução',goals:'Metas e configurações',history:'Histórico e evolução'};
+ function openPanel(name){document.querySelectorAll('.cp-modal-page').forEach(p=>p.classList.toggle('active',p.dataset.modalPage===name));$('cpModalTitle').textContent=titles[name]||'Detalhes';modal.classList.remove('hidden');document.body.style.overflow='hidden';}
+ function closePanel(){modal.classList.add('hidden');document.body.style.overflow='';}
+ document.querySelectorAll('[data-open-modal]').forEach(b=>b.addEventListener('click',()=>b.dataset.openModal==='date'?(dateModal.classList.remove('hidden'),document.body.style.overflow='hidden'):openPanel(b.dataset.openModal)));
+ $('cpModalClose').onclick=closePanel;
+ modal.addEventListener('click',e=>{if(e.target===modal)closePanel()});
+ $('cpDateClose').onclick=()=>{dateModal.classList.add('hidden');document.body.style.overflow=''};
+ dateModal.addEventListener('click',e=>{if(e.target===dateModal){dateModal.classList.add('hidden');document.body.style.overflow=''}});
+ const oldRender=render;
+ render=function(){oldRender();const d=day(),s=data.settings,cal=sum(d,'kcal'),wg=Number(s.waterGoal)||2.7,latest=[...data.weights].sort((a,b)=>b.date.localeCompare(a.date))[0];$('cpFoodSummary').textContent=d.foods.length?d.foods.length+' registros · '+fmt(cal)+' kcal':'Registrar alimento ou bebida';$('cpWaterSummary').textContent=fmt((d.water||0)/1000)+' de '+fmt(wg)+' L hoje';const a=d.fast?.lastMeal,b=d.fast?.firstCalories,valid=a&&b&&new Date(b)>=new Date(a);if(a&&!b){const mins=Math.max(0,Math.floor((Date.now()-new Date(a).getTime())/60000));$('cpFastSummary').textContent='Em andamento · '+Math.floor(mins/60)+'h '+mins%60+'min'}else if(valid){const mins=Math.round((new Date(b)-new Date(a))/60000);$('cpFastSummary').textContent='Último jejum · '+Math.floor(mins/60)+'h '+mins%60+'min'}else $('cpFastSummary').textContent='Ver e calcular seu jejum';$('cpWeightSummary').textContent=latest?fmt(latest.kg)+' kg · Registrar evolução':'Registrar evolução';const date=$('day').value;$('cpDateButton').textContent=date===dateNow()?'Hoje':new Date(date+'T12:00:00').toLocaleDateString('pt-BR');$('cpDateLabel').textContent=date===dateNow()?'Acompanhe seu progresso de hoje.':'Visualizando '+new Date(date+'T12:00:00').toLocaleDateString('pt-BR')};
+ $('foodForm').addEventListener('submit',()=>setTimeout(closePanel,80));
+ $('weightForm').addEventListener('submit',()=>setTimeout(closePanel,80));
+ $('macroGoalForm').addEventListener('submit',()=>setTimeout(closePanel,80));
+ $('settingsForm').addEventListener('submit',()=>setTimeout(closePanel,80));
+ ['waterUndo','waterAdd','startFast','endFast','saveFast','saveTarget'].forEach(id=>$(id).addEventListener('click',()=>setTimeout(closePanel,80)));
+ document.querySelectorAll('[data-water]').forEach(b=>b.addEventListener('click',()=>setTimeout(closePanel,80)));
+ $('day').addEventListener('change',()=>{dateModal.classList.add('hidden');document.body.style.overflow=''});
+})();
+
 save();
 </script></body></html>
