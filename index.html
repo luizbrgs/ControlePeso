@@ -222,11 +222,57 @@ h2{font-size:16px;letter-spacing:-.35px}
  #accountBar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
 }
 
+
+/* Experiência de aplicativo — painel minimalista e ações contextuais */
+.cp-home{width:min(100% - 30px,760px);margin:0 auto 42px;padding-top:22px}
+.cp-home-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 2px 18px}
+.cp-eyebrow{font-size:10px;letter-spacing:1.5px;font-weight:850;color:#07818d}
+.cp-home-head h2{font-size:25px;margin:3px 0 2px;letter-spacing:-.8px}
+.cp-home-head p{margin:0;color:var(--muted);font-size:13px}
+.cp-date-trigger{background:#fff;color:#08727e;border:1px solid var(--line);box-shadow:none;border-radius:14px;padding:10px 13px;white-space:nowrap}
+.cp-hero>.card{width:100%;padding:21px;border-radius:24px}
+.cp-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:13px}
+.cp-shortcut{display:flex;align-items:center;gap:12px;text-align:left;min-height:78px;padding:14px;background:#fff;color:var(--ink);border:1px solid #e1ebee;border-radius:19px;box-shadow:0 8px 22px rgba(16,64,77,.045)}
+.cp-shortcut .cp-short-icon{width:39px;height:39px;flex:0 0 39px;display:grid;place-items:center;border-radius:13px;background:#e2f3f4;color:#087e8b;font-size:22px}
+.cp-shortcut b{display:block;font-size:13px;line-height:1.25}
+.cp-shortcut small{display:block;margin-top:4px;color:var(--muted);font-size:10px;font-weight:500;line-height:1.3}
+.cp-arrow{margin-left:auto;color:#8ca0a8;font-size:22px}
+.cp-bottom-actions{display:flex;gap:9px;margin-top:15px}
+.cp-bottom-actions button{flex:1;background:transparent;color:#607780;border:1px solid #dce8ec;box-shadow:none;font-size:11px;padding:10px}
+.cp-modal{position:fixed;inset:0;z-index:1000;background:rgba(13,35,43,.48);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+.cp-modal-sheet{width:min(100%,720px);max-height:min(90dvh,900px);overflow:auto;background:#f5f9fa;border-radius:25px 25px 18px 18px;padding:19px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 24px 80px rgba(7,35,44,.25);overscroll-behavior:contain}
+.cp-modal-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
+.cp-modal-head h2{font-size:22px;margin:2px 0 0;letter-spacing:-.7px}
+.cp-close{width:40px;min-width:40px;height:40px;padding:0;border-radius:50%;background:#e7f0f2;color:#34535d;box-shadow:none;font-size:26px}
+.cp-modal-page{display:none}.cp-modal-page.active{display:block}
+.cp-modal-page>.card{margin-bottom:11px;box-shadow:0 5px 18px rgba(16,64,77,.04)}
+.cp-modal-page>.card:last-child{margin-bottom:0}
+.cp-date-sheet{max-width:480px}
+.cp-date-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+.cp-date-actions button{font-size:12px}
+.cp-home .card{box-shadow:0 10px 26px rgba(16,64,77,.055)}
+@media(max-width:620px){
+ .cp-home{width:calc(100% - 22px);padding-top:15px}
+ .cp-home-head{margin-bottom:13px}
+ .cp-home-head h2{font-size:23px}
+ .cp-hero>.card{padding:17px;border-radius:20px}
+ .cp-shortcuts{gap:8px;margin-top:9px}
+ .cp-shortcut{min-height:74px;padding:11px 9px;gap:8px;border-radius:16px}
+ .cp-shortcut .cp-short-icon{width:34px;height:34px;flex-basis:34px;border-radius:11px;font-size:19px}
+ .cp-shortcut b{font-size:12px}
+ .cp-shortcut small{font-size:9px}
+ .cp-bottom-actions{margin-top:11px}
+ .cp-modal{padding:0;align-items:flex-end}
+ .cp-modal-sheet{width:100%;max-height:92dvh;border-radius:24px 24px 0 0;padding:17px 13px calc(18px + env(safe-area-inset-bottom))}
+ .cp-modal-head{margin-bottom:11px}
+}
+@media(max-width:360px){.cp-shortcuts{grid-template-columns:1fr}.cp-shortcut{min-height:66px}}
+
 </style></head>
 <body>
 <header><div class="wrap">
  <div class="head"><div><h1>Meu Controle</h1><p>Seu painel completo de alimentação, hidratação, jejum e evolução.</p></div><span class="pill">DIÁRIO PESSOAL</span></div>
- <div class="datebar"><label for="day">Data:</label><input id="day" type="date"><button class="secondary" id="todayBtn">Hoje</button><button class="secondary" id="prevBtn">‹ Dia anterior</button><button class="secondary" id="nextBtn">Próximo dia ›</button></div>
+ 
 </div></header>
 <div id="accountBar" class="hidden"><span id="accountEmail"></span><button id="signOutBtn" class="secondary">Sair</button></div>
 <section id="authGate"><div class="authbox">
@@ -236,20 +282,26 @@ h2{font-size:16px;letter-spacing:-.35px}
 <div class="field"><label for="authPassword">Senha</label><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"></div>
 <div id="authActions"><button type="submit" id="loginBtn">Entrar</button><button type="button" id="signupBtn" class="secondary">Criar conta</button></div>
 </form><div id="authMessage" role="status">Se ainda não tem cadastro, use “Criar conta”.</div>
-</div></section><div id="appContent" class="hidden"><main><div class="grid">
- <section class="card s8">
+</div></section><div id="appContent" class="hidden">
+ <main class="cp-home">
+  <div class="cp-home-head"><div><div class="cp-eyebrow">SEU DIA, EM EQUILÍBRIO</div><h2>Visão geral</h2><p id="cpDateLabel">Acompanhe seu progresso de hoje.</p></div><button class="cp-date-trigger" data-open-modal="date"><span>◷</span> <span id="cpDateButton">Hoje</span></button></div>
+  <section class="cp-hero"><section class="card s8">
   <div class="sectionhead"><h2>Resumo de calorias</h2><span class="pill" id="calPct">0% da meta</span></div>
   <div class="row"><div><div class="big" id="calTotal">0 kcal</div><div class="small">consumidas no dia</div></div><div style="text-align:right"><div class="big" id="calLeft">1.800</div><div class="small">kcal restantes</div></div></div>
   <div class="progress"><span id="calBar"></span></div><div class="row small"><span>Meta diária</span><b id="calGoalLabel">1.800 kcal</b></div>
   <div class="stats" style="margin-top:13px"><div class="stat"><small>Proteínas</small><strong id="proteinTotal">0 g</strong></div><div class="stat"><small>Carboidratos</small><strong id="carbTotal">0 g</strong></div><div class="stat"><small>Gorduras</small><strong id="fatTotal">0 g</strong></div></div>
- </section>
- <section class="card s4">
-  <h2>Água</h2><div class="row"><div class="big" id="waterTotal">0 L</div><span class="small" id="waterPct">0%</span></div>
-  <div class="progress"><span id="waterBar"></span></div><div class="small" id="waterRemaining">Meta: 2,7 L</div>
-  <div class="waterBtns"><button data-water="200">+200 ml</button><button data-water="300">+300 ml</button><button data-water="500">+500 ml</button><button data-water="1000">+1 L</button><button class="secondary" id="waterUndo">Desfazer</button></div>
-  <div class="field" style="margin-top:12px"><label>Adicionar quantidade personalizada (ml)</label><div class="row"><input id="waterCustom" type="number" min="1" placeholder="Ex.: 350"><button id="waterAdd">Adicionar</button></div></div>
- </section>
- <section class="card s7">
+ </section></section>
+  <div class="cp-shortcuts">
+   <button class="cp-shortcut cp-food-shortcut" data-open-modal="food"><span class="cp-short-icon">＋</span><span><b>Adicionar refeição</b><small id="cpFoodSummary">Registrar alimento ou bebida</small></span><span class="cp-arrow">›</span></button>
+   <button class="cp-shortcut" data-open-modal="water"><span class="cp-short-icon">◌</span><span><b>Água</b><small id="cpWaterSummary">Acompanhar hidratação</small></span><span class="cp-arrow">›</span></button>
+   <button class="cp-shortcut" data-open-modal="fast"><span class="cp-short-icon">◷</span><span><b>Jejum</b><small id="cpFastSummary">Ver e calcular seu jejum</small></span><span class="cp-arrow">›</span></button>
+   <button class="cp-shortcut" data-open-modal="weight"><span class="cp-short-icon">↗</span><span><b>Peso</b><small id="cpWeightSummary">Registrar evolução</small></span><span class="cp-arrow">›</span></button>
+  </div>
+  <div class="cp-bottom-actions"><button data-open-modal="goals">Metas e configurações</button><button data-open-modal="history">Histórico e evolução</button></div>
+ </main>
+ <div id="cpModal" class="cp-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cpModalTitle">
+  <div class="cp-modal-sheet"><div class="cp-modal-head"><div><div class="cp-eyebrow">MEU CONTROLE</div><h2 id="cpModalTitle">Detalhes</h2></div><button id="cpModalClose" class="cp-close" aria-label="Fechar">×</button></div>
+   <div class="cp-modal-body"><section class="cp-modal-page" data-modal-page="food"><section class="card s7">
   <div class="sectionhead"><h2>Diário alimentar</h2><span class="small" id="foodCount">0 itens</span></div>
   <div class="tabs"><button class="tab active" data-tab="all">Todos</button><button class="tab" data-tab="breakfast">Café</button><button class="tab" data-tab="lunch">Almoço</button><button class="tab" data-tab="snack">Lanche</button><button class="tab" data-tab="dinner">Jantar</button><button class="tab" data-tab="other">Outros</button></div>
   <div id="foodList" class="foodlist"></div>
@@ -266,8 +318,33 @@ h2{font-size:16px;letter-spacing:-.35px}
    </div>
   </form>
   <p class="note">Você pode lançar estimativas ou os valores do rótulo. Use editar para corrigir quantidade, calorias ou macros depois.</p>
- </section>
- <section class="card s5">
+ </section></section>
+<section class="cp-modal-page" data-modal-page="water"><section class="card s4">
+  <h2>Água</h2><div class="row"><div class="big" id="waterTotal">0 L</div><span class="small" id="waterPct">0%</span></div>
+  <div class="progress"><span id="waterBar"></span></div><div class="small" id="waterRemaining">Meta: 2,7 L</div>
+  <div class="waterBtns"><button data-water="200">+200 ml</button><button data-water="300">+300 ml</button><button data-water="500">+500 ml</button><button data-water="1000">+1 L</button><button class="secondary" id="waterUndo">Desfazer</button></div>
+  <div class="field" style="margin-top:12px"><label>Adicionar quantidade personalizada (ml)</label><div class="row"><input id="waterCustom" type="number" min="1" placeholder="Ex.: 350"><button id="waterAdd">Adicionar</button></div></div>
+ </section></section>
+<section class="cp-modal-page" data-modal-page="fast"><section class="card s6">
+  <h2>Jejum</h2><div class="row"><div><div class="big" id="fastDuration">—</div><div class="small" id="fastStatus">Informe os horários para calcular.</div></div><span id="fastBadge" class="pill badgewarn">Não informado</span></div>
+  <div class="two" style="margin-top:14px">
+   <div class="field"><label>Última refeição / calorias</label><input id="lastMeal" type="datetime-local"></div>
+   <div class="field"><label>Primeiro consumo calórico</label><input id="firstCalories" type="datetime-local"></div>
+  </div>
+  <div class="quickBtns"><button id="saveFast">Calcular e salvar</button><button class="secondary" id="startFast">Iniciar jejum agora</button><button class="secondary" id="endFast">Encerrar agora</button></div>
+  <p class="note">O jejum é opcional. Água, café sem açúcar e chá sem calorias não adicionam calorias ao diário; açúcar e leite contam como consumo calórico. Não force o jejum se sentir mal-estar.</p>
+ </section></section>
+<section class="cp-modal-page" data-modal-page="weight"><section class="card s6">
+  <h2>Registro de peso</h2><div class="stats">
+   <div class="stat"><small>Peso mais recente</small><strong id="currentWeight">87,7 kg</strong></div>
+   <div class="stat"><small>Meta final</small><strong id="targetWeight">75 kg</strong></div>
+   <div class="stat"><small>Diferença</small><strong id="toLose">12,7 kg</strong></div>
+  </div>
+  <form id="weightForm" class="row" style="margin-top:13px"><input id="weightInput" type="number" min="20" max="350" step=".1" placeholder="Peso em kg" required><button>Registrar</button></form>
+  <div class="field" style="margin-top:12px"><label>Meta de peso (kg)</label><div class="row"><input id="targetInput" type="number" min="20" max="350" step=".1"><button class="secondary" id="saveTarget">Salvar meta</button></div></div>
+  <div id="weightHistory" class="listrows" style="margin-top:10px"></div>
+ </section></section>
+<section class="cp-modal-page" data-modal-page="goals"><section class="card s5">
   <h2>Macros e metas</h2><div id="macroBars"></div>
   <form id="macroGoalForm" class="two" style="margin-top:14px">
    <div class="field"><label>Proteína (g/dia)</label><input id="proteinGoal" type="number" min="0" max="500"></div>
@@ -277,31 +354,7 @@ h2{font-size:16px;letter-spacing:-.35px}
   </form>
   <p class="note">Metas iniciais editáveis: proteína 140 g, carboidratos 165 g e gorduras 60 g. São referências aproximadas, não prescrições.</p>
  </section>
- <section class="card s6">
-  <h2>Jejum</h2><div class="row"><div><div class="big" id="fastDuration">—</div><div class="small" id="fastStatus">Informe os horários para calcular.</div></div><span id="fastBadge" class="pill badgewarn">Não informado</span></div>
-  <div class="two" style="margin-top:14px">
-   <div class="field"><label>Última refeição / calorias</label><input id="lastMeal" type="datetime-local"></div>
-   <div class="field"><label>Primeiro consumo calórico</label><input id="firstCalories" type="datetime-local"></div>
-  </div>
-  <div class="quickBtns"><button id="saveFast">Calcular e salvar</button><button class="secondary" id="startFast">Iniciar jejum agora</button><button class="secondary" id="endFast">Encerrar agora</button></div>
-  <p class="note">O jejum é opcional. Água, café sem açúcar e chá sem calorias não adicionam calorias ao diário; açúcar e leite contam como consumo calórico. Não force o jejum se sentir mal-estar.</p>
- </section>
- <section class="card s6">
-  <h2>Registro de peso</h2><div class="stats">
-   <div class="stat"><small>Peso mais recente</small><strong id="currentWeight">87,7 kg</strong></div>
-   <div class="stat"><small>Meta final</small><strong id="targetWeight">75 kg</strong></div>
-   <div class="stat"><small>Diferença</small><strong id="toLose">12,7 kg</strong></div>
-  </div>
-  <form id="weightForm" class="row" style="margin-top:13px"><input id="weightInput" type="number" min="20" max="350" step=".1" placeholder="Peso em kg" required><button>Registrar</button></form>
-  <div class="field" style="margin-top:12px"><label>Meta de peso (kg)</label><div class="row"><input id="targetInput" type="number" min="20" max="350" step=".1"><button class="secondary" id="saveTarget">Salvar meta</button></div></div>
-  <div id="weightHistory" class="listrows" style="margin-top:10px"></div>
- </section>
- <section class="card s12">
-  <div class="sectionhead"><h2>Evolução semanal</h2><span class="small">Últimos 7 dias até a data selecionada</span></div>
-  <svg id="weekChart" class="chart" viewBox="0 0 700 180" role="img" aria-label="Gráfico de calorias dos últimos sete dias"></svg>
-  <div class="row small"><span>Consumo calórico por dia</span><span id="weekAverage">Média: —</span></div>
- </section>
- <section class="card s6">
+<section class="card s6">
   <h2>Configurações diárias</h2>
   <form id="settingsForm" class="two">
    <div class="field"><label>Meta de calorias (kcal)</label><input id="calGoal" type="number" min="500" max="6000" step="50"></div>
@@ -313,13 +366,21 @@ h2{font-size:16px;letter-spacing:-.35px}
   </form>
   <div class="stats" style="margin-top:12px"><div class="stat"><small>IMC estimado</small><strong id="bmi">—</strong></div><div class="stat"><small>Variação desde início</small><strong id="weightChange">—</strong></div><div class="stat"><small>Meta inicial</small><strong id="startGoal">77,7 kg</strong></div></div>
   <p class="note">O IMC é apenas um indicador geral e não avalia composição corporal. Não use sozinho para julgar saúde.</p>
+ </section></section>
+<section class="cp-modal-page" data-modal-page="history"><section class="card s12">
+  <div class="sectionhead"><h2>Evolução semanal</h2><span class="small">Últimos 7 dias até a data selecionada</span></div>
+  <svg id="weekChart" class="chart" viewBox="0 0 700 180" role="img" aria-label="Gráfico de calorias dos últimos sete dias"></svg>
+  <div class="row small"><span>Consumo calórico por dia</span><span id="weekAverage">Média: —</span></div>
  </section>
- <section class="card s6">
+<section class="card s6">
   <h2>Histórico e segurança dos dados</h2><div id="dayHistory" class="listrows"></div>
   <div class="quickBtns"><button class="secondary" id="exportBtn">Exportar backup</button><label class="secondary" style="padding:9px 13px;border-radius:10px;cursor:pointer;font-weight:700">Importar backup<input type="file" id="importFile" accept="application/json" hidden></label><button class="danger" id="clearDay">Limpar dia selecionado</button></div>
   <p class="note">Os dados ficam armazenados neste navegador e aparelho. Exporte um backup regularmente. Limpar o dia apaga alimentação, água e jejum daquela data.</p>
- </section>
-</div></main></div>
+ </section></section></div>
+  </div>
+ </div>
+ <div id="cpDateModal" class="cp-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cpDateTitle"><div class="cp-modal-sheet cp-date-sheet"><div class="cp-modal-head"><div><div class="cp-eyebrow">CONSULTAR OUTRO DIA</div><h2 id="cpDateTitle">Selecionar data</h2></div><button id="cpDateClose" class="cp-close" aria-label="Fechar">×</button></div><div class="field"><label for="day">Data dos registros</label><input id="day" type="date"></div><div class="cp-date-actions"><button class="secondary" id="todayBtn">Hoje</button><button class="secondary" id="prevBtn">‹ Dia anterior</button><button class="secondary" id="nextBtn">Próximo dia ›</button></div></div></div>
+</div>
 <footer>Ferramenta pessoal de acompanhamento. Estimativas nutricionais variam conforme marcas, preparo e porções. Metas de calorias, água e macronutrientes são referências ajustáveis e não substituem avaliação profissional.</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
