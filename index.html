@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#173b28">
 <title>Meu Controle — Saúde e alimentação</title>
 <style>
@@ -134,6 +134,92 @@ footer{width:min(100% - 32px,1180px);padding:0 0 30px;margin:auto;color:var(--mu
  .formgrid>*{grid-column:1!important}
  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
  .macroline{grid-template-columns:52px minmax(0,1fr) 45px;gap:5px}
+}
+
+
+/* Redesign mobile-first • Controle Peso */
+:root{color-scheme:light;--bg:#f1f6f8;--surface:#fff;--surface-2:#f6fafb;--ink:#172b35;--muted:#6d818b;--line:#dce8ec;--brand:#087e8b;--brand-dark:#075965;--brand-soft:#e2f3f4;--danger:#c34c56;--amber:#9a681c;--shadow:0 12px 34px rgba(16,64,77,.075);--radius:22px}
+html{min-height:100%;-webkit-text-size-adjust:100%;scroll-padding-top:18px}
+body{min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse at 8% 0%,#dceff2 0,transparent 38%),linear-gradient(180deg,#f5f9fa 0%,#eef4f6 100%);color:var(--ink);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit}
+button{min-height:44px;border-radius:14px;background:linear-gradient(135deg,#087e8b,#096b78);box-shadow:0 5px 13px rgba(8,126,139,.16);-webkit-tap-highlight-color:transparent}
+button.secondary{background:#e4f2f4;color:#096b78;box-shadow:none}
+button.ghost{color:#087e8b}
+input,select,textarea{min-height:48px;border-radius:14px;border-color:#d9e6ea;background:#fff;font-size:16px}
+input:focus,select:focus,textarea:focus{border-color:#36a4ad;box-shadow:0 0 0 4px rgba(8,126,139,.12)}
+header{background:linear-gradient(125deg,#103b49 0%,#087e8b 64%,#19a1a4 100%);padding:30px 24px 58px}
+header:after{width:390px;height:390px;right:-130px;top:-245px;border-color:#ffffff24;box-shadow:0 0 0 38px #ffffff0b,0 0 0 82px #ffffff08}
+.wrap{width:min(100%,1200px)}
+h1{letter-spacing:-1.4px}
+header p{color:#d9f2f3}
+.head>.pill{background:#ffffff20;color:#f3ffff;border-color:#ffffff35}
+.datebar{border-radius:18px;background:#ffffff16;border-color:#ffffff2c;padding:13px}
+.datebar label{color:#e3f7f7}
+.datebar button{background:#effbfc;color:#075965;box-shadow:none}
+main{width:min(100% - 36px,1200px);margin:-30px auto 48px}
+.grid{gap:18px}
+.card{padding:24px;border-radius:22px;border-color:#e1ebee;box-shadow:0 12px 34px rgba(16,64,77,.065)}
+h2{font-size:16px;letter-spacing:-.35px}
+.big{letter-spacing:-1.7px}
+.pill{background:#e2f3f4;color:#08727e}
+.progress{background:#e8eff1;height:11px}
+.progress span{background:linear-gradient(90deg,#087e8b,#42b9b0)}
+.stat{border-color:#e3edef;background:linear-gradient(145deg,#fff,#f3f8f9);border-radius:16px}
+.stat strong{color:#183944}
+.food-search-results button{background:#f4fafb;border-color:#deebee}
+.food-search-results button:hover{background:#e2f3f4}
+.tab{background:#edf3f5;color:#5d737c;border-radius:12px}
+.tab.active{background:#087e8b;color:white;box-shadow:0 5px 14px rgba(8,126,139,.2)}
+.macroline .progress span{background:linear-gradient(90deg,#2999a2,#72c8bf)}
+.waterBtns button{background:#e2f3f4;color:#08727e}
+.listrows>div{padding:12px 0}
+#accountBar{background:#103b49;padding:11px max(22px,env(safe-area-inset-right)) 11px max(22px,env(safe-area-inset-left))}
+#authGate .authbox{border-radius:24px;border-color:#e1ebee;box-shadow:0 18px 45px rgba(16,64,77,.09)}
+#authGate h2{letter-spacing:-.7px}
+@media(max-width:700px){
+ body{font-size:14px}
+ header{padding:22px 16px 46px}
+ .head{align-items:flex-start}
+ h1{font-size:27px}
+ header p{font-size:13px;max-width:290px}
+ .datebar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:19px;padding:11px}
+ .datebar label,.datebar input{grid-column:1/-1}
+ .datebar input{width:100%;min-width:0}
+ .datebar button{width:100%;font-size:12px;padding:10px 7px}
+ main{width:calc(100% - 22px);margin:-21px auto 32px}
+ .grid{gap:11px}
+ .card{padding:17px;border-radius:19px}
+ .s8,.s7,.s6,.s5,.s4{grid-column:span 12}
+ .big{font-size:30px}
+ .stats{gap:8px}
+ .stat{padding:11px;border-radius:14px}
+ .stat strong{font-size:18px}
+ .sectionhead{align-items:center}
+ .tabs{display:flex;overflow-x:auto;flex-wrap:nowrap;gap:7px;padding:2px 1px 8px;margin-right:-3px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+ .tabs::-webkit-scrollbar{display:none}
+ .tab{flex:0 0 auto;min-height:42px;padding:10px 13px;white-space:nowrap}
+ .formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .formgrid .wide{grid-column:1/-1}
+ .formgrid button{min-height:48px}
+ .food{padding:14px 0}
+ .waterBtns button,.quickBtns button{min-height:45px;flex:1 1 calc(50% - 8px)}
+ .two{gap:9px}
+ #authGate{margin:22px auto 38px}
+ #authGate .authbox{padding:22px;border-radius:21px}
+ #accountBar{padding:9px 14px}
+}
+@media(max-width:390px){
+ .head>.pill{display:none}
+ .datebar{grid-template-columns:1fr}
+ .datebar label,.datebar input,.datebar button{grid-column:1}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .formgrid{grid-template-columns:1fr}
+ .formgrid>*{grid-column:1/-1!important}
+ .macroline{grid-template-columns:54px minmax(0,1fr) 44px;gap:6px}
+}
+@supports(padding:max(0px)){
+ body{padding-bottom:env(safe-area-inset-bottom)}
+ #accountBar{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
 }
 
 </style></head>
