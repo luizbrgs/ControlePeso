@@ -102,7 +102,7 @@ button:active{transform:scale(.98)}
  <div class="head"><div><h1>Meu Controle</h1><p>Seu painel completo de alimentação, hidratação, jejum e evolução.</p></div><span class="pill">DIÁRIO PESSOAL</span></div>
  <div class="datebar"><label for="day">Data:</label><input id="day" type="date"><button class="secondary" id="todayBtn">Hoje</button><button class="secondary" id="prevBtn">‹ Dia anterior</button><button class="secondary" id="nextBtn">Próximo dia ›</button></div>
 </div></header>
-<div id="accountBar" class="hidden"><span id="accountEmail"></span><button id="signOutBtn" class="secondary">Sair</button></div>
+<div id="accountBar" class="hidden"><span id="accountEmail"></span><span id="cloudStatus" aria-live="polite">Conectado</span><button id="signOutBtn" class="secondary">Sair</button></div>
 <section id="authGate"><div class="authbox">
 <h2>Acesse seu ControlePeso</h2><p class="muted">Entre com seu e-mail e senha para sincronizar seus registros entre celular e computador.</p>
 <form id="authForm">
@@ -200,7 +200,7 @@ button:active{transform:scale(.98)}
 const SUPABASE_URL='https://xxzqrirkxqifnfghftjl.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_cyTTXR1jZlkMW0pijBmGcw_pja9779C';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-let currentUser=null,cloudTimer=null,cloudBusy=false;
+let currentUser=null,cloudTimer=null,cloudBusy=false,cloudPending=false;
 function authMessage(message,isError=false){const el=document.getElementById('authMessage');el.textContent=message;el.style.color=isError?'#b94a42':'#68766d'}
 function setAuthenticated(user){
  currentUser=user;
@@ -209,21 +209,47 @@ function setAuthenticated(user){
  document.getElementById('accountBar').classList.toggle('hidden',!user);
  document.getElementById('accountEmail').textContent=user?.email||'';
 }
+function cloudStatus(message,isError=false){
+ const el=document.getElementById('cloudStatus');
+ if(el){el.textContent=message;el.style.color=isError?'#ffd0cb':'#d9f5df'}
+}
 async function syncToCloud(){
- if(!currentUser||cloudBusy)return;
+ if(!currentUser)return;
+ if(cloudBusy){cloudPending=true;return}
  cloudBusy=true;
+ cloudStatus('Sincronizando…');
  try{
-  const payload=JSON.parse(localStorage.getItem(KEY)||'{}');
-  const {error}=await supabaseClient.from('user_data').upsert({user_id:currentUser.id,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-  if(error)throw error;
- }catch(e){console.error('Falha na sincronização:',e);authMessage('Não foi possível sincronizar agora. Seus dados continuam salvos neste aparelho.',true)}
- finally{cloudBusy=false}
+  do{
+   cloudPending=false;
+   const userId=currentUser?.id;
+   if(!userId)break;
+   const payload=JSON.parse(localStorage.getItem(KEY)||'{}');
+   const {error}=await supabaseClient.from('user_data').upsert(
+    {user_id:userId,data:payload,updated_at:new Date().toISOString()},
+    {onConflict:'user_id'}
+   );
+   if(error)throw error;
+  }while(cloudPending&&currentUser);
+  cloudStatus('Sincronizado');
+ }catch(e){
+  console.error('Falha na sincronização:',e);
+  cloudPending=false;
+  cloudStatus('Erro ao sincronizar',true);
+  authMessage('Não foi possível sincronizar agora. Seus dados continuam salvos neste aparelho.',true);
+ }finally{
+  cloudBusy=false;
+  if(cloudPending&&currentUser){cloudPending=false;syncToCloud()}
+ }
 }
 async function loadCloudData(user){
- const {data,error}=await supabaseClient.from('user_data').select('data').eq('user_id',user.id).maybeSingle();
+ const {data:row,error}=await supabaseClient.from('user_data').select('data').eq('user_id',user.id).maybeSingle();
  if(error)throw error;
- if(data?.data&&data.data.settings&&data.data.days&&Array.isArray(data.data.weights)){
-  localStorage.setItem(KEY,JSON.stringify(data.data));return true;
+ if(row?.data&&row.data.settings&&row.data.days&&Array.isArray(row.data.weights)){
+  // Keep the in-memory state and the local cache aligned with the cloud copy.
+  data=JSON.parse(JSON.stringify(row.data));
+  localStorage.setItem(KEY,JSON.stringify(data));
+  cloudStatus('Dados carregados da nuvem');
+  return true;
  }
  return false;
 }
